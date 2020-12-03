@@ -3,3 +3,6 @@
 ################################################################################
 
 /AdventOfCode2020/obj/Debug
+/AdventOfCode2020/bin/Debug
+/.vs
+/AdventOfCode2020/.vs/AdventOfCode2020/v16
