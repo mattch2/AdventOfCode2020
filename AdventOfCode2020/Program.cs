@@ -22,11 +22,70 @@ namespace AdventOfCode2020
             //Day2Second();
 
             //Day3();
-            Day4();
+            //Day4();
+            Day5();
             Console.ReadKey();
         }
 
+        private static void Day5()
+        {
 
+            string[] lines = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day5\data.txt").ToArray();
+            int total = 0;
+            var seat = new List<int>();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var interval = new List<int>() { 0, 127 };
+                var column = new List<int>() { 0, 7 };
+                var letters = lines[i].ToCharArray();
+                for (int y = 0; y < 7; y++)
+                {
+                    divideInterval(letters[y],interval);
+                }
+
+                for (int y = 7; y < 10; y++)
+                {
+                    divideInterval(letters[y], column);
+                }
+
+                int currentscore = interval[0] * 8 + column[0];
+                seat.Add(currentscore);
+                if (currentscore > total) total = currentscore;
+                Console.WriteLine($"Result : {interval[0]} {column[0]} {currentscore}");
+            }
+            Console.WriteLine($"Max Seat : {total}");
+            
+            seat.Sort();
+            var begin = seat[0];
+            for (int i = 0; i < seat.Count; i++)
+            {
+                if ((begin + 1) != seat[i + 1]) {
+                    Console.WriteLine($"My seat is : {begin + 1}");
+                    break;
+                }
+                begin++;
+            }
+        }
+
+        private static void divideInterval(Char letter, List<int> interval) {
+            var sub = (interval[1] - interval[0]) / 2+1;
+            if (letter == 'F') {
+                interval[1] -= sub;
+            }
+            if (letter == 'L')
+            {
+                interval[1] -= sub;
+            }
+            if (letter == 'B')
+            {
+                interval[0] += sub;
+            }
+            if (letter == 'R')
+            {
+                interval[0] += sub;
+            }
+
+        }
 
         static void Day1First()
         {
@@ -108,7 +167,6 @@ namespace AdventOfCode2020
             }
             Console.WriteLine("Valids pwds count: " + validPwds.Count());
         }
-
         private static void Day3()
         {
             string tree = "#";
@@ -165,7 +223,6 @@ namespace AdventOfCode2020
             BigInteger total = treeCount1 * treeCount2 * treeCount3 * treeCount4 * treeCount5;
             Console.WriteLine($"Number of trees = {treeCount1} {treeCount2} {treeCount3} {treeCount4} {treeCount5}, Total : {total}");
         }
-
         private static void Day4() 
         {
             string[] passports = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day4\data.txt").ToArray();
@@ -248,5 +305,6 @@ namespace AdventOfCode2020
             }
             Console.WriteLine($"Valid pwds: {validPwds}");
         }
+
     }
 }
