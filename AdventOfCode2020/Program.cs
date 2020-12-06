@@ -23,8 +23,37 @@ namespace AdventOfCode2020
 
             //Day3();
             //Day4();
-            Day5();
+            //Day5();
+            Day6();
             Console.ReadKey();
+        }
+
+        private static void Day6() {
+            string[] lines = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day6\data.txt").ToArray();
+
+            var groups = new List<List<String>>();
+            var answers = new List<String>();
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i] != "") answers.Add(lines[i]);
+                else {
+                    groups.Add(answers);
+                    answers = new List<String>();
+                }
+            }
+            groups.Add(answers);
+            var count = 0;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                int member = groups[i].Count;
+                string all = String.Empty;
+                for (int y = 0; y < groups[i].Count; y++)
+                {
+                    all+= string.Join("", groups[i][y].ToCharArray().Distinct());
+                }
+                count+=all.ToCharArray().GroupBy(z => z).Count(g=>g.Count()==member);
+            }
         }
 
         private static void Day5()
