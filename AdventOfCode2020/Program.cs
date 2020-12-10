@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,8 +25,168 @@ namespace AdventOfCode2020
             //Day3();
             //Day4();
             //Day5();
-            Day6();
+            //Day6();
+            //Day7();
+            //Day8();
+            Day9();
             Console.ReadKey();
+        }
+
+        private static void Day9()
+        {
+            string[] lines = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day9\data.txt").ToArray();
+            int preambule = 25;
+            var Finalnumber = 0;
+            for (int i = preambule; i < lines.Length; i++)
+            {
+                var found = false;
+                var number = int.Parse(lines[i]);
+                for (int y = i - preambule; y < i; y++)
+                {
+                    var first = int.Parse(lines[y]);
+                    for (int z = i - preambule; z < i; z++)
+                    {
+                        var second = int.Parse(lines[z]);
+                        if (first + second == number && first!=second) found = true;
+                    }
+                }
+                if (!found) {
+                    Console.WriteLine($"No matching sum for {number}");
+                    Finalnumber = number;
+                    break;
+                }
+            }
+            var currentList = new List<BigInteger>();
+            BigInteger start = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var number = BigInteger.Parse(lines[i]);
+                if (start + number <= Finalnumber)
+                {
+                    currentList.Add(number);
+                    start += number;
+                }
+                else {
+                    i -= currentList.Count - 1;
+                    currentList = new List<BigInteger>();
+                    start = 0;
+                }
+
+                if(start == Finalnumber && currentList.Count>=2) break;
+            }
+            currentList.Sort();
+            Console.WriteLine($"Sum is : {currentList.First() + currentList.Last()}");
+        }
+
+
+        private static void Day8()
+        {
+            string[] lines = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day8\data.txt").ToArray();
+            var instructions = new List<Tuple<string, int, int>>();
+            var isFinished = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var instruction = lines[i].Split(' ')[0].Trim();
+                var parameter = int.Parse(lines[i].Split(' ')[1].Trim());
+                instructions.Add(Tuple.Create(instruction, parameter, i));
+            }
+            Console.WriteLine($"Counter is:{GetCount(instructions, out isFinished)}");
+
+            for (int i = 0; i < instructions.Count; i++)
+            {
+                var tempList = new List<Tuple<string, int, int>>(instructions);
+                if (instructions[i].Item1 == "jmp") {
+                    tempList[i] = Tuple.Create("nop", instructions[i].Item2, instructions[i].Item3);
+                }
+                else if (instructions[i].Item1 == "nop")
+                {
+                    tempList[i] = Tuple.Create("jmp", instructions[i].Item2, instructions[i].Item3);
+                }
+                var temp = GetCount(tempList, out isFinished);
+                if(isFinished) Console.WriteLine($"Final Counter is:{temp}");
+            }
+        }
+
+
+
+        private static int GetCount(List<Tuple<string, int, int>> instructions, out bool isFinished) {
+            int count = 0;
+            int i = 0;
+            var visited = new List<Tuple<string, int, int>>();
+
+            while (i< instructions.Count)
+            {
+                var instruction = instructions[i];
+                if (visited.Any(a => a.Item3 == i)) {
+                    isFinished = false;
+                    return count;
+                } 
+              
+                if (instruction.Item1 == "nop") i++;
+                if (instruction.Item1 == "acc")
+                {
+                    count += instruction.Item2;
+                    i++;
+                }
+                if (instruction.Item1 == "jmp") i += instruction.Item2;
+                visited.Add(instruction);
+            }
+            isFinished = true;
+            return count;
+        }
+
+        private static void Day7()
+        {
+            string[] lines = File.ReadLines(@"C:\Users\Christophe\source\repos\mattch2\AdventOfCode2020\AdventOfCode2020\Data\Day7\data.txt").ToArray();
+            var allRules = new List<Tuple<string, int, string>>();
+            var extractedRultes = new List<Tuple<string, int, string>>();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                lines[i] = lines[i].Replace("bags", "").Replace("bag", "").Replace(".", "").Replace("  ", " ");
+                var outerBag = lines[i].Split(new string[] { "contain" }, options: StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                var innerBages = lines[i].Split(new string[] { "contain" }, options: StringSplitOptions.RemoveEmptyEntries)[1].Split(',');
+                for (int y = 0; y < innerBages.Length; y++)
+                {
+                    if (innerBages[y].Trim() == "no other") break;
+                    var temp = innerBages[y].Split(new string[] { " " }, options: StringSplitOptions.RemoveEmptyEntries);
+                    allRules.Add(Tuple.Create(outerBag, int.Parse(temp[0].Trim()), temp[1].Trim() + " " + temp[2].Trim()));
+                }
+
+            }
+            var bag = "shiny gold";
+            //countMatching(bag,allRules, extractedRultes);
+            int count = 0;
+            CountRequiredBags(bag, allRules, extractedRultes, ref count, 1);
+
+
+
+            Console.WriteLine($"Number Of Bags : {extractedRultes.Count}");
+            Console.WriteLine($"Number Of Required Bags : {count}");
+
+        }
+        private static void countMatching(String bag, List<Tuple<string, int, string>> allRules, List<Tuple<string, int, string>> extractedRultes)
+        {
+            for (int i = 0; i < allRules.Count; i++)
+            {
+                if (allRules[i].Item3 == bag) {
+                    if(!extractedRultes.Any(r=>r.Item1== allRules[i].Item1)) extractedRultes.Add(allRules[i]);
+                    countMatching(allRules[i].Item1, allRules, extractedRultes);
+                } 
+            }
+        }
+
+        private static void CountRequiredBags(String bag, List<Tuple<string, int, string>> allRules, List<Tuple<string, int, string>> extractedRultes,
+            ref int count, int multiplicator)
+        {
+            for (int i = 0; i < allRules.Count; i++)
+            {
+                if (allRules[i].Item1 == bag)
+                {
+                    extractedRultes.Add(allRules[i]);
+                    count += multiplicator* allRules[i].Item2;
+                    CountRequiredBags(allRules[i].Item3, allRules, extractedRultes, ref count, multiplicator*allRules[i].Item2);
+                }
+            }
         }
 
         private static void Day6() {
